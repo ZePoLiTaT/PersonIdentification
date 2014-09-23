@@ -27,6 +27,6 @@ Programming in C++ and may be prototyping in Matlab. A balance of team members w
 
 [[1] Barbosa, IgorBarros; Cristani, Marco; Del Bue, Alessio; Bazzani, Loris; Murino, Vittorio, “Re-identification with RGB-D Sensors”, Computer Vision – ECCV 2012. Workshops and Demonstrations, Lecture Notes in Computer Science, 2012.](http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0CCkQFjAB&url=http%3A%2F%2Fwww.lorisbazzani.info%2Fpapers%2Fproceedings%2FBarbosaetal_REID12.pdf&ei=0kohVOKOJcq9ygOc8oCAAw&usg=AFQjCNEEsbJ27H_2QaWrdgQd_37ZDy8GTw&sig2=Ha1dcMGUEKnYdicGDuvEsA&bvm=bv.75775273,d.bGQ)
 
-[2] Mogelmose, A; Bahnsen, C.; Moeslund, T.B.; Clapes, A; Escalera, S., "Tri-modal Person Re-identification with RGB, Depth and Thermal Features," Computer Vision and Pattern Recognition Workshops (CVPRW), 2013 IEEE Conference on , vol., no., pp.301,307, 23-28 June 2013
+[[2] Mogelmose, A; Bahnsen, C.; Moeslund, T.B.; Clapes, A; Escalera, S., "Tri-modal Person Re-identification with RGB, Depth and Thermal Features," Computer Vision and Pattern Recognition Workshops (CVPRW), 2013 IEEE Conference on , vol., no., pp.301,307, 23-28 June 2013](http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCIQFjAA&url=http%3A%2F%2Fwww.maia.ub.es%2F~sergio%2Flinked%2Fcvpr2013trimodalpersonreid.pdf&ei=UUshVJWAJ-OBywPV64KABQ&usg=AFQjCNEWTOI-RmIAJeI-j6abQmPbrM7LNg&sig2=umYgVL5pLxsN3kooGvwcrw&bvm=bv.75775273,d.bGQ)
 
 
