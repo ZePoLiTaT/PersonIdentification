@@ -1,22 +1,16 @@
-#include "GeoDist.h"
+#include "GeodesicDistance.h"
 
 #include <pcl/io/pcd_io.h>
 #include <Kinect.h>
 
-#include "vtkSmartPointer.h"
+
 #include "vtkTimerLog.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkTimerLog.h"
 #include "vtkCamera.h"
 #include "vtkProperty.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkRendererCollection.h"
 #include "vtkPolyDataCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
@@ -24,10 +18,6 @@
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkContourWidget.h"
-#include "vtkOrientedGlyphContourRepresentation.h"
-#include "vtkPolygonalSurfacePointPlacer.h"
-#include "vtkPolygonalSurfaceContourLineInterpolator2.h"
 
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>
@@ -48,18 +38,16 @@
 #include "vtkDoubleArray.h"
 
 
-GeoDist::GeoDist()
+GeodesicDistance::GeodesicDistance()
 {
 }
 
 
-GeoDist::~GeoDist()
+GeodesicDistance::~GeodesicDistance()
 {
 }
 
-
-
-void GeoDist::compute(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, const CameraSpacePoint &ji, const CameraSpacePoint &je) const
+void GeodesicDistance::processCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
 	vtkNew<vtkTimerLog> timer;
 
@@ -81,65 +69,48 @@ void GeoDist::compute(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, const Camera
 
 	timer->StopTimer();
 	cout << "Mesh took " << timer->GetElapsedTime() << " s." << endl;
-	
+
 	/** VTK **/
-	vtkSmartPointer<vtkPolyData> vtk_polygons;
 	cout << endl << "Converting to VTK ..." << endl;
 	timer->StartTimer();
+
+	pcl::VTKUtils::convertToVTK(triangles, this->vtk_polygons);
+
 	
-	pcl::VTKUtils::convertToVTK(triangles, vtk_polygons);
-	
-	vtkIdType iniId = vtk_polygons->FindPoint(ji.X, ji.Y, ji.Z);
-	vtkIdType endId = vtk_polygons->FindPoint(je.X, je.Y, je.Z);
 
 	timer->StopTimer();
 	cout << "Conversion took " << timer->GetElapsedTime() << " s." << endl;
+}
 
-	vtkNew<vtkPolyDataNormals> normals;
+float GeodesicDistance::compute(const Location &ji, const Location &je) const
+{
+	float geodist = 0;
 
-	const int geodesicMethod = 0;
-	const int interpolationOrder = 0;
-	const double distanceOffset = 0;
+	vtkIdType iniId = this->vtk_polygons->FindPoint(ji.x, ji.y, ji.z);
+	vtkIdType endId = this->vtk_polygons->FindPoint(je.x, je.y, je.z);
 
-	// We need to ensure that the dataset has normals if a distance offset was
-	// specified.
-	if (fabs(distanceOffset) > 1e-6)
-	{
-		//normals->SetInputConnection(reader->GetOutputPort());
-		normals->SetInputData(vtk_polygons);
-		normals->SplittingOff();
-
-		// vtkPolygonalSurfacePointPlacer needs cell normals
-		// vtkPolygonalSurfaceContourLineInterpolator needs vertex normals
-		normals->ComputeCellNormalsOn();
-		normals->ComputePointNormalsOn();
-		normals->Update();
-	}
+	cout << "   i(" << ji.x << ji.y << ji.z << ")  ->  IDi(" << iniId << ")   ";
+	cout << "   f(" << je.x << je.y << je.z << ")  ->  IDf(" << endId << ")   ";
 
 	vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra =
 		vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();
-	dijkstra->SetInputData(vtk_polygons);
+	dijkstra->SetInputData(this->vtk_polygons );
 	dijkstra->SetStartVertex(iniId);
 	dijkstra->SetEndVertex(endId);
 
 	try{
 		cout << "Before dijkstra update" << endl;
 		dijkstra->Update();
+		cout << "After dijkstra update" << endl;
 
-		cout << "Before get weights" << endl;
 		vtkNew <vtkDoubleArray> weights;
 		dijkstra->GetCumulativeWeights(weights.GetPointer());
-		//cout << "* * *Geodesic distance value: " << endl;
-		cout << "number of weights: " << weights->GetSize() << endl;
-		cout << "endVertId: " << endId << endl;
-		cout << "distance = " << weights->GetValue(endId) << endl;
+		geodist = weights->GetValue(endId);
+
 	}catch (const std::exception& e) 
 	{
 		std::cout << "exception caught: " << e.what() << '\n';
 	}
-	
 
-	
-
-	//return NULL; // dijkstra;
+	return geodist;
 }
