@@ -73,6 +73,7 @@ void getAngles(Eigen::Quaternionf &q1, float & heading, float & attitude, float 
 
 RenderWindowUISingleInheritance::RenderWindowUISingleInheritance() 
 {
+	this->geodist = 0;
 	this->ui = new Ui_MainWindow;
 	this->ui->setupUi(this);
 	currentDir=QDir("C:/Rick/Data/HeadPose/");
@@ -181,7 +182,7 @@ void RenderWindowUISingleInheritance::dataReceived(QuaternionValue data,EulerAng
 
 void RenderWindowUISingleInheritance::frameReceived()
 {
-	cout << "received"<<endl;
+	//cout << "received"<<endl;
 	shared_ptr<Kinect_Data> dat;
 	dat=receive(*frames);
 	frameNumber++;
@@ -246,7 +247,7 @@ void RenderWindowUISingleInheritance::frameReceived()
 				Eigen::Vector3f new_point = quat._transformVector(pt);
 
 				Eigen::Vector3f trans = Eigen::Vector3f(dat->locations[0].Loc.x, dat->locations[0].Loc.y, dat->locations[0].Loc.z);
-				cout << dat->locations[0].Loc.x << "," << dat->locations[0].Loc.y << "," << dat->locations[0].Loc.z << endl;
+				//cout << dat->locations[0].Loc.x << "," << dat->locations[0].Loc.y << "," << dat->locations[0].Loc.z << endl;
 				PointXYZRGB pt1, pt2;
 				pt1.x = trans[0];
 				pt1.y = trans[1];
@@ -301,7 +302,7 @@ void RenderWindowUISingleInheritance::frameReceived()
 				Eigen::Vector3f new_point = quat._transformVector(pt);
 
 				Eigen::Vector3f trans = Eigen::Vector3f(dat->locations[i].Loc.x, dat->locations[i].Loc.y, dat->locations[i].Loc.z);
-				cout << dat->locations[i].Loc.x << "," << dat->locations[i].Loc.y << "," << dat->locations[i].Loc.z << endl;
+				//cout << dat->locations[i].Loc.x << "," << dat->locations[i].Loc.y << "," << dat->locations[i].Loc.z << endl;
 				PointXYZRGB pt1, pt2;
 				pt1.x = trans[0];
 				pt1.y = trans[1];
@@ -335,12 +336,41 @@ void RenderWindowUISingleInheritance::frameReceived()
 	viewer->addPointCloud<PointXYZRGB>(dat->new_cloud,rgb);
 	this->ui->qvtkWidget->update();
 
-	if (dat->num_heads > 0)
+	if (dat->num_heads > 0 && this->geodist<10)
 	{
-		GeoDist geo;
+		this->geodist++;
 		std::vector<JointLoc> body = dat->bodies.at(0);
 
-		geo.compute(dat->new_cloud, body.at(0).Loc3D, body.at(1).Loc3D);
+		GeoDist geo;
+		geo.compute(dat->new_cloud, body.at(3).Loc3D, body.at(7).Loc3D );
+
+
+		// Create a mapper and actor
+		//vtkSmartPointer<vtkPolyDataMapper> pathMapper =
+		//	vtkSmartPointer<vtkPolyDataMapper>::New();
+		//pathMapper->SetInputConnection(dijkstra->GetOutputPort());
+
+		//vtkSmartPointer<vtkActor> pathActor =
+		//	vtkSmartPointer<vtkActor>::New();
+		//pathActor->SetMapper(pathMapper);
+		//pathActor->GetProperty()->SetColor(1, 0, 0); // Red
+		//pathActor->GetProperty()->SetLineWidth(4);
+
+		/*renderWindow->GetRenderers()
+			->AddActor(pathActor);*/
+
+
+		// Create a search tree, use KDTreee for non-organized data.
+		//pcl::search::Search<PointXYZRGB>::Ptr tree;
+		//tree.reset(new pcl::search::OrganizedNeighbor<PointXYZRGB>());
+		//tree->setInputCloud(dat->new_cloud);
+
+		//std::vector<int> nn_indices(1);
+		//std::vector<float> nn_dists(1);
+		//tree->nearestKSearch(pcl::PointXYZRGB(0, 0, 0), 1, nn_indices, nn_dists);
+
+		//Eigen::Vector3f trans = Eigen::Vector3f(body.at(3).Loc3D.X, body.at(3).Loc3D.Y, body.at(3).Loc3D.Z);		
+		
 	}
 	
 	//windowToImageFilter->SetInput(renderWindow);

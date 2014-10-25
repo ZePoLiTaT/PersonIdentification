@@ -609,7 +609,7 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 		m_Governor.WaitForAvailablePipelineSlot();
 		asend(m_KinectData,m_CurrentFrame);
 		emit Kinect_Frame_Available();
-		cout << "send" << endl;
+		//cout << "send" << endl;
 
 		//Fork saving code
 

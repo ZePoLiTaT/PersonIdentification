@@ -83,6 +83,7 @@ private:
 	vtkImageData* vtkRGBimage;
 	//long frameNumber;
 	bool broadcast;
+	int geodist;
 };
  
 #endif
