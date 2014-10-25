@@ -54,9 +54,10 @@ typedef struct _headLoc
 
 typedef struct _jointLoc
 {
-	CameraSpacePoint Loc3D;
+	Location Loc3D;
 	ColorSpacePoint Loc2D;
 	JointType type;
+	bool tracked;
 }JointLoc;
 
 class Kinect_Data

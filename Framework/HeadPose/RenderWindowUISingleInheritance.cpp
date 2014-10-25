@@ -14,7 +14,9 @@
 #include <boost\lexical_cast.hpp>
 #include <ppl.h>
 #include <ppltasks.h>
-#include "GeoDist.h"
+#include "GeodesicDistance.h"
+#include "EuclideanDistance.h"
+
 // Constructor
 
 using namespace concurrency;
@@ -336,40 +338,94 @@ void RenderWindowUISingleInheritance::frameReceived()
 	viewer->addPointCloud<PointXYZRGB>(dat->new_cloud,rgb);
 	this->ui->qvtkWidget->update();
 
-	if (dat->num_heads > 0 && this->geodist<10)
+	if (dat->num_heads > 0 && this->geodist<4)
 	{
 		this->geodist++;
+
+		GeodesicDistance geo;
+		EuclideanDistance euc;
+
+		// Triangulate the mesh
+		geo.processCloud(dat->new_cloud);
+
+		// TODO: Do this for all the people in the frame		
 		std::vector<JointLoc> body = dat->bodies.at(0);
+		
+		for (int i = 0; i < dat->num_heads; i++)
+		{
+			cout << endl << "============== PERSON [" << i << "] =============";
 
-		GeoDist geo;
-		geo.compute(dat->new_cloud, body.at(3).Loc3D, body.at(7).Loc3D );
+			cout << endl << "--- Geodesic:";
+			if (body.at(3).tracked && body.at(7).tracked)
+			{
+				cout << endl << "		1.Left -> Right shoulder:   " << geo.compute(body.at(3).Loc3D, body.at(7).Loc3D);
+			}
+			else
+			{
+				cout << endl << "		1.Left -> Right shoulder (NOT TRACKED CORRECTLY)   ";
+			}
+				
+			if (body.at(11).tracked && body.at(15).tracked)
+			{
+				cout << endl << "		2.Left -> Right hip:   " << geo.compute(body.at(11).Loc3D, body.at(15).Loc3D);
+			}
+			else
+			{
+				cout << endl << "		2.Left -> Right hip (NOT TRACKED CORRECTLY)   ";
+			}
+
+			if (body.at(1).tracked && body.at(3).tracked)
+			{
+				cout << endl << "		3.Middle torso -> Left shoulder:   " << geo.compute(body.at(1).Loc3D, body.at(3).Loc3D);
+			}
+			else
+			{
+				cout << endl << "		3.Middle torso -> Left shoulder (NOT TRACKED CORRECTLY)   ";
+			}
+
+			if (body.at(1).tracked && body.at(11).tracked)
+			{
+				cout << endl << "		4.Middle torso -> Left hip:   " << geo.compute(body.at(1).Loc3D, body.at(11).Loc3D);
+			}
+			else
+			{
+				cout << endl << "		4.Middle torso -> Left hip (NOT TRACKED CORRECTLY)   ";
+			}
+
+			if (body.at(1).tracked && body.at(15).tracked)
+			{
+				cout << endl << "		5.Middle torso -> Right hip:   " << geo.compute(body.at(1).Loc3D, body.at(15).Loc3D);
+			}
+			else
+			{
+				cout << endl << "		5.Middle torso -> Right hip (NOT TRACKED CORRECTLY)   ";
+			}
+
+			cout << endl << "--- Euclidean:";
 
 
-		// Create a mapper and actor
-		//vtkSmartPointer<vtkPolyDataMapper> pathMapper =
-		//	vtkSmartPointer<vtkPolyDataMapper>::New();
-		//pathMapper->SetInputConnection(dijkstra->GetOutputPort());
-
-		//vtkSmartPointer<vtkActor> pathActor =
-		//	vtkSmartPointer<vtkActor>::New();
-		//pathActor->SetMapper(pathMapper);
-		//pathActor->GetProperty()->SetColor(1, 0, 0); // Red
-		//pathActor->GetProperty()->SetLineWidth(4);
-
-		/*renderWindow->GetRenderers()
-			->AddActor(pathActor);*/
+			if (body.at(0).tracked && body.at(14).tracked)
+			{
+				cout << endl << "		1. Base spine -> left foot:   " << euc.compute(body.at(0).Loc3D, body.at(14).Loc3D);
+			}
+			else
+			{
+				cout << endl << "		1. Base spine -> left foot: (NOT TRACKED CORRECTLY)   ";
+			}
 
 
-		// Create a search tree, use KDTreee for non-organized data.
-		//pcl::search::Search<PointXYZRGB>::Ptr tree;
-		//tree.reset(new pcl::search::OrganizedNeighbor<PointXYZRGB>());
-		//tree->setInputCloud(dat->new_cloud);
+			if (body.at(0).tracked)
+			{
+				cout << endl << "		2. Base spine -> Head:   " << euc.compute(body.at(0).Loc3D, dat->locations[0].Loc);
+			}
+			else
+			{
+				cout << endl << "		2. Base spine -> Head (NOT TRACKED CORRECTLY)   ";
+			}
 
-		//std::vector<int> nn_indices(1);
-		//std::vector<float> nn_dists(1);
-		//tree->nearestKSearch(pcl::PointXYZRGB(0, 0, 0), 1, nn_indices, nn_dists);
 
-		//Eigen::Vector3f trans = Eigen::Vector3f(body.at(3).Loc3D.X, body.at(3).Loc3D.Y, body.at(3).Loc3D.Z);		
+			cout << endl;
+		}
 		
 	}
 	

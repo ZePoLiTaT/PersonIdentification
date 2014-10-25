@@ -186,9 +186,14 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 							{
 								m_pCoordinateMapper->MapCameraPointToColorSpace(joints[j].Position, &headPoint);
 
-								jl.Loc3D.X = joints[j].Position.X;
-								jl.Loc3D.Y = joints[j].Position.Y;
-								jl.Loc3D.Z = joints[j].Position.Z;
+								jl.Loc3D.x = joints[j].Position.X;
+								jl.Loc3D.y = joints[j].Position.Y;
+								jl.Loc3D.z = joints[j].Position.Z;
+								if (joints[j].TrackingState == TrackingState_Tracked)
+									jl.tracked = true;
+								else
+									jl.tracked = false;
+								
 								jl.Loc2D.X = headPoint.X;
 								jl.Loc2D.Y = headPoint.Y;
 								jl.type = joints[j].JointType;
