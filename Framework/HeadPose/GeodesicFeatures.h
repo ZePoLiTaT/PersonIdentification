@@ -9,15 +9,19 @@
 #include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
 #include "Global_def.h"
+#include <vector>
 
-class GeodesicDistance
+class GeodesicFeatures
 {
 public:
-	GeodesicDistance();
-	~GeodesicDistance();
+	GeodesicFeatures();
+	~GeodesicFeatures();
 
 	void processCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	float compute(const Location &ji, const Location &je) const;
+
+	void extract(std::vector<JointLoc> const &body) const;
+
 private:
 	vtkSmartPointer<vtkPolyData> vtk_polygons;
 };
