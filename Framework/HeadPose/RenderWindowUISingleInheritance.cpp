@@ -14,8 +14,8 @@
 #include <boost\lexical_cast.hpp>
 #include <ppl.h>
 #include <ppltasks.h>
-#include "GeodesicDistance.h"
-#include "EuclideanDistance.h"
+#include "GeodesicFeatures.h"
+#include "SkeletonFeatures.h"
 
 // Constructor
 
@@ -342,89 +342,24 @@ void RenderWindowUISingleInheritance::frameReceived()
 	{
 		this->geodist++;
 
-		GeodesicDistance geo;
-		EuclideanDistance euc;
+		GeodesicFeatures geo;
+		SkeletonFeatures ske;
 
 		// Triangulate the mesh
 		geo.processCloud(dat->new_cloud);
-
-		// TODO: Do this for all the people in the frame		
-		std::vector<JointLoc> body = dat->bodies.at(0);
 		
 		for (int i = 0; i < dat->num_heads; i++)
 		{
 			cout << endl << "============== PERSON [" << i << "] =============";
 
-			cout << endl << "--- Geodesic:";
-			if (body.at(3).tracked && body.at(7).tracked)
+			geo.extract(dat->bodies[i]);
+			vector<float> feat_sk = ske.extract(dat->bodies[i]);
+
+			for (int i = 0; i < feat_sk.size(); i++)
 			{
-				cout << endl << "		1.Left -> Right shoulder:   " << geo.compute(body.at(3).Loc3D, body.at(7).Loc3D);
-			}
-			else
-			{
-				cout << endl << "		1.Left -> Right shoulder (NOT TRACKED CORRECTLY)   ";
-			}
-				
-			if (body.at(11).tracked && body.at(15).tracked)
-			{
-				cout << endl << "		2.Left -> Right hip:   " << geo.compute(body.at(11).Loc3D, body.at(15).Loc3D);
-			}
-			else
-			{
-				cout << endl << "		2.Left -> Right hip (NOT TRACKED CORRECTLY)   ";
+				cout << "d(" << (i + 1) << ") = " << feat_sk.at(i)<<endl;
 			}
 
-			if (body.at(1).tracked && body.at(3).tracked)
-			{
-				cout << endl << "		3.Middle torso -> Left shoulder:   " << geo.compute(body.at(1).Loc3D, body.at(3).Loc3D);
-			}
-			else
-			{
-				cout << endl << "		3.Middle torso -> Left shoulder (NOT TRACKED CORRECTLY)   ";
-			}
-
-			if (body.at(1).tracked && body.at(11).tracked)
-			{
-				cout << endl << "		4.Middle torso -> Left hip:   " << geo.compute(body.at(1).Loc3D, body.at(11).Loc3D);
-			}
-			else
-			{
-				cout << endl << "		4.Middle torso -> Left hip (NOT TRACKED CORRECTLY)   ";
-			}
-
-			if (body.at(1).tracked && body.at(15).tracked)
-			{
-				cout << endl << "		5.Middle torso -> Right hip:   " << geo.compute(body.at(1).Loc3D, body.at(15).Loc3D);
-			}
-			else
-			{
-				cout << endl << "		5.Middle torso -> Right hip (NOT TRACKED CORRECTLY)   ";
-			}
-
-			cout << endl << "--- Euclidean:";
-
-
-			if (body.at(0).tracked && body.at(14).tracked)
-			{
-				cout << endl << "		1. Base spine -> left foot:   " << euc.compute(body.at(0).Loc3D, body.at(14).Loc3D);
-			}
-			else
-			{
-				cout << endl << "		1. Base spine -> left foot: (NOT TRACKED CORRECTLY)   ";
-			}
-
-
-			if (body.at(0).tracked)
-			{
-				cout << endl << "		2. Base spine -> Head:   " << euc.compute(body.at(0).Loc3D, dat->locations[0].Loc);
-			}
-			else
-			{
-				cout << endl << "		2. Base spine -> Head (NOT TRACKED CORRECTLY)   ";
-			}
-
-
-			cout << endl;
 		}
 		
 	}

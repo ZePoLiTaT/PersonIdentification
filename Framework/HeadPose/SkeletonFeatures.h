@@ -30,6 +30,6 @@ public:
 	float getDistanceTorso2Hip(std::vector<JointLoc> const &body) const;
 
 private:
-	const float HEAD_SIZE = 0.14;
+	const float HEAD_SIZE = 0.13;
 };
 

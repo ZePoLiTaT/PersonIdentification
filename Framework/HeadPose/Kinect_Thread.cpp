@@ -136,7 +136,7 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 				{
 					Joint joints[JointType_Count];
 
-
+					
 					hr = pBody->GetJoints(_countof(joints), joints);
 					if (SUCCEEDED(hr))
 					{
@@ -155,7 +155,23 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 							dpt.X = floor(depthPoint.X);
 							dpt.Y = floor(depthPoint.Y);
 							HeadLoc hd = HeadLoc();
+							
 							JointLoc jl = JointLoc();
+							m_pCoordinateMapper->MapCameraPointToColorSpace(joints[j].Position, &headPoint);
+
+							jl.Loc3D.x = joints[j].Position.X;
+							jl.Loc3D.y = joints[j].Position.Y;
+							jl.Loc3D.z = joints[j].Position.Z;
+							if (joints[j].TrackingState == TrackingState_Tracked)
+								jl.tracked = true;
+							else
+								jl.tracked = false;
+
+							jl.Loc2D.X = headPoint.X;
+							jl.Loc2D.Y = headPoint.Y;
+							jl.type = joints[j].JointType;
+							body.push_back(jl);
+
 
 							if (joints[j].JointType == JointType::JointType_Head)
 							{
@@ -182,27 +198,9 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 								//cv::circle(test,cv::Point(depthPoint.X,depthPoint.Y),hd.Radius,cv::Scalar(0,0,255),5);
 								//cv::rectangle(test, left, right, Scalar(0, 0, 255), 4);
 							}
-							else
-							{
-								m_pCoordinateMapper->MapCameraPointToColorSpace(joints[j].Position, &headPoint);
-
-								jl.Loc3D.x = joints[j].Position.X;
-								jl.Loc3D.y = joints[j].Position.Y;
-								jl.Loc3D.z = joints[j].Position.Z;
-								if (joints[j].TrackingState == TrackingState_Tracked)
-									jl.tracked = true;
-								else
-									jl.tracked = false;
-								
-								jl.Loc2D.X = headPoint.X;
-								jl.Loc2D.Y = headPoint.Y;
-								jl.type = joints[j].JointType;
-								body.push_back(jl);
-							}
 
 							if (joints[j].JointType == JointType::JointType_Neck)
 							{
-
 								m_pCoordinateMapper->MapCameraPointToColorSpace(joints[j].Position, &neckPoint);
 								if (neckPoint.X != 0 && neckPoint.Y != 0)
 								{

@@ -118,7 +118,6 @@ float SkeletonFeatures::getDistanceTorso(std::vector<JointLoc> const &body) cons
 
 float SkeletonFeatures::getDistanceTorso2Head(std::vector<JointLoc> const &body, float t_len) const
 {
-	cout << "----- " << this->HEAD_SIZE << "----"<<endl;
 	// torso to head
 	if (body.at(JointType::JointType_SpineShoulder).tracked && body.at(JointType::JointType_Head).tracked)
 	{
@@ -130,12 +129,12 @@ float SkeletonFeatures::getDistanceTorso2Head(std::vector<JointLoc> const &body,
 
 		float h2t_len = t_len + this->compute(head2torso) + this->HEAD_SIZE;
 
-		cout << endl << "		1. Torso -> Head:   " << h2t_len;
+		//cout << endl << "		1. Torso -> Head:   " << h2t_len;
 		return h2t_len;
 	}
 	else
 	{
-		cout << endl << "		1. Torso -> Head:  (NOT TRACKED CORRECTLY)";
+		//cout << endl << "		1. Torso -> Head:  (NOT TRACKED CORRECTLY)";
 		return -1;
 	}
 }
