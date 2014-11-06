@@ -38,7 +38,7 @@ public:
  
 	// Constructor/Destructor
 	RenderWindowUISingleInheritance(); 
-	~RenderWindowUISingleInheritance() {};
+	~RenderWindowUISingleInheritance();
 signals:
 	void cont(void);
 	void colourDisplayParameterChange(int);
@@ -54,6 +54,7 @@ public slots:
 	virtual void hpOPTChange(int);
 	virtual void broadcastOPTChange(int);
 private:
+	ofstream fout;
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer; //(new pcl::visualization::PCLVisualizer ("3D Viewer"));
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud; //(new pcl::PointCloud<pcl::PointXYZ>);
   // Designer form

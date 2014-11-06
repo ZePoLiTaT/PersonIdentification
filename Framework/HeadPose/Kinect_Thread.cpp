@@ -84,7 +84,7 @@ Kinect_Thread::~Kinect_Thread(void)
 //////////////////////////////////////////////////////////////////////////
 void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHeight, int nDepthWidth, 
 								 RGBQUAD* pColorBuffer, int nColorWidth, int nColorHeight, BYTE* pBodyIndexBuffer, 
-								 int nBodyIndexWidth, int nBodyIndexHeight, int BodyCount,IBody** ppBodies)
+								 int nBodyIndexWidth, int nBodyIndexHeight, int BodyCount,IBody** ppBodies, Vector4 floorPlane)
 
 {
 	shared_ptr<Kinect_Data> 						m_CurrentFrame(new Kinect_Data());
@@ -295,6 +295,7 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 								}
 								m_CurrentFrame->locations.push_back(hd);
 								m_CurrentFrame->num_heads++;
+								m_CurrentFrame->floorPlane = floorPlane;
 								hed = nk = false;
 								BYTE indx = pBodyIndexBuffer[static_cast<int>(dpt.Y*nDepthWidth + dpt.X)];
 								playerIDs.push_back(indx);
@@ -808,7 +809,8 @@ void Kinect_Thread::Update()
 		IBody* ppBodies[BODY_COUNT] = {0};
 		//hr = pBodyFrame->get_RelativeTime(&nTime);
 		hr = pBodyFrame->GetAndRefreshBodyData(_countof(ppBodies), ppBodies);
-
+		Vector4 floordata;
+		pBodyFrame->get_FloorClipPlane(&floordata);
 		if (SUCCEEDED(hr))
 		{
 			//Fork two tasks. Save to disk the raw data and process frame
@@ -817,7 +819,7 @@ void Kinect_Thread::Update()
 			ProcessFrame(nDepthTime, pDepthBuffer, nDepthHeight, nDepthWidth, 
 				pColorBuffer, nColorWidth, nColorHeight,
 				pBodyIndexBuffer, nBodyIndexWidth, nBodyIndexHeight,
-				BODY_COUNT,ppBodies);
+				BODY_COUNT,ppBodies,floordata);
 		}
 
 

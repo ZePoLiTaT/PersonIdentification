@@ -9,7 +9,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
 #include "Global_def.h"
+
+#include <iostream>
 #include <vector>
+
+using namespace std;
 
 class GeodesicFeatures
 {
@@ -17,10 +21,10 @@ public:
 	GeodesicFeatures();
 	~GeodesicFeatures();
 
+	vector<float> extract(std::vector<JointLoc> const &body) const;
+
 	void processCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	float compute(const Location &ji, const Location &je) const;
-
-	void extract(std::vector<JointLoc> const &body) const;
 
 private:
 	vtkSmartPointer<vtkPolyData> vtk_polygons;

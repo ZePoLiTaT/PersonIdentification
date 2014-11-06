@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 
@@ -19,7 +20,9 @@ public:
 	float compute(const Location &ji, const Location &je) const;
 	float compute(const vector<Location> &locations) const;
 
-	vector <float> extract(std::vector<JointLoc> const &body) const;
+	vector <float> extract(std::vector<JointLoc> const &body, Vector4 const & floorPlane) const;
+
+	float getDistancePoint2Plane(Vector4 const & floorPlane, Location const & p) const;
 
 	float getDistanceTorso(std::vector<JointLoc> const &body) const;
 	float getDistanceTorso2Head(std::vector<JointLoc> const &body, float t_len) const;

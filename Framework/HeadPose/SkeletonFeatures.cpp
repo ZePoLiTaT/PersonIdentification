@@ -41,7 +41,7 @@ float SkeletonFeatures::compute(const vector<Location> &locations) const
 	
 }
 
-vector <float> SkeletonFeatures::extract(std::vector<JointLoc> const &body) const
+vector <float> SkeletonFeatures::extract(std::vector<JointLoc> const &body, Vector4 const & floorPlane) const
 {
 	cout << endl << "--- Euclidean:";
 
@@ -64,6 +64,8 @@ vector <float> SkeletonFeatures::extract(std::vector<JointLoc> const &body) cons
 	///////////////////////////////////////////////////////////////////////
 
 	// floor to head
+	float d1 = getDistancePoint2Plane(floorPlane, body.at(JointType::JointType_Head).Loc3D);
+	euclidean.push_back(d1);
 
 	// radio between torso and legs
 	float d2 = torso / foot2hip;
@@ -74,6 +76,8 @@ vector <float> SkeletonFeatures::extract(std::vector<JointLoc> const &body) cons
 	euclidean.push_back(d3);
 	
 	// floor to neck
+	float d4 = getDistancePoint2Plane(floorPlane, body.at(JointType::JointType_Neck).Loc3D);
+	euclidean.push_back(d4);
 	
 	// neck to left shoulder
 	float d5 = getDistanceNeck2Shoulder(body.at(JointType::JointType_Neck), body.at(JointType::JointType_ShoulderLeft));
@@ -298,6 +302,15 @@ float SkeletonFeatures::getDistanceTorso2Hip(std::vector<JointLoc> const &body) 
 		//cout << endl << "		1. Hip -> Foot:  (NOT TRACKED CORRECTLY)";
 		return -1;
 	}
+}
+
+float SkeletonFeatures::getDistancePoint2Plane(Vector4 const & floorPlane, Location const & p) const
+{
+	float numerator = (floorPlane.x * p.x) + (floorPlane.y * p.y) + (floorPlane.z * p.z) + floorPlane.w;
+	float denominator = sqrt((floorPlane.x*floorPlane.x) + (floorPlane.y*floorPlane.y) + (floorPlane.z*floorPlane.z) );
+	float D = numerator / denominator;
+
+	return D;
 }
 
 //float SkeletonFeatures::computeSegments(const Location* loc, ...) const

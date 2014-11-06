@@ -17,9 +17,27 @@
 #include "GeodesicFeatures.h"
 #include "SkeletonFeatures.h"
 
+
 // Constructor
 
 using namespace concurrency;
+
+void savefeatures(ofstream &fout, vector<float> skfeat, vector<float> gdfeat)
+{
+	vector <float>::iterator featIterator;
+
+	for (featIterator = skfeat.begin(); featIterator != skfeat.end(); featIterator++)
+	{
+		fout << *featIterator << ", ";
+	}
+
+	for (featIterator = gdfeat.begin(); featIterator != gdfeat.end(); featIterator++)
+	{
+		fout << *featIterator << ", ";
+	}
+	fout << endl;	
+}
+
 double d2r(double d)
 {
 	return d * M_PI / 180;
@@ -82,7 +100,7 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	currentDir.setFilter(QDir::Dirs| QDir::NoDotAndDotDot);
 	QStringList entries = currentDir.entryList();
 	QStringList::ConstIterator entry=entries.begin();
-	
+	fout.open("C:/local/data/test2.csv", ios::out);
 	int maximum=0,current;
 	for(entry=entries.begin();entry !=entries.end();entry++)
 	{
@@ -338,12 +356,14 @@ void RenderWindowUISingleInheritance::frameReceived()
 	viewer->addPointCloud<PointXYZRGB>(dat->new_cloud,rgb);
 	this->ui->qvtkWidget->update();
 
-	if (dat->num_heads > 0 && this->geodist<4)
+	if (dat->num_heads > 0 )
 	{
 		this->geodist++;
 
 		GeodesicFeatures geo;
 		SkeletonFeatures ske;
+
+//		cout << "Floor Plane " << dat->floorPlane;
 
 		// Triangulate the mesh
 		geo.processCloud(dat->new_cloud);
@@ -352,14 +372,30 @@ void RenderWindowUISingleInheritance::frameReceived()
 		{
 			cout << endl << "============== PERSON [" << i << "] =============";
 
-			geo.extract(dat->bodies[i]);
-			vector<float> feat_sk = ske.extract(dat->bodies[i]);
+			//Eigen::Vector3f trans = Eigen::Vector3f(dat->bodies[i].at(JointType::JointType_SpineMid).Loc3D.x, 
+			//										dat->bodies[i].at(JointType::JointType_SpineMid).Loc3D.y, 
+			//										dat->bodies[i].at(JointType::JointType_SpineMid).Loc3D.z - 0.2);
+
+			//Eigen::Quaternionf quat = Eigen::Quaternionf();
+			//getQuat(0, 0, 0, quat);
+			//quat.normalize();
+			//viewer->addCube(trans, quat, 0.05, 0.05, 0.05, "x");
+
+
+			vector<float> feat_gd = geo.extract(dat->bodies[i]);
+			vector<float> feat_sk = ske.extract(dat->bodies[i],dat->floorPlane);
 
 			for (int i = 0; i < feat_sk.size(); i++)
 			{
-				cout << "d(" << (i + 1) << ") = " << feat_sk.at(i)<<endl;
+				cout << "sd(" << (i + 1) << ") = " << feat_sk.at(i)<<endl;
+			}
+			
+			for (int i = 0; i < feat_gd.size(); i++)
+			{
+				cout << "gd(" << (i + 1) << ") = " << feat_gd.at(i) << endl;
 			}
 
+			savefeatures(fout, feat_sk, feat_gd);
 		}
 		
 	}
@@ -506,4 +542,10 @@ void RenderWindowUISingleInheritance::broadcastOPTChange(int opt)
 	{
 		broadcast = false;
 	}
+}
+
+RenderWindowUISingleInheritance::~RenderWindowUISingleInheritance()
+{
+	
+	fout.close();
 }

@@ -136,7 +136,7 @@ private:
 														UINT16* pDepthBuffer, int nDepthHeight, int nDepthWidth, 
 														RGBQUAD* pColorBuffer, int nColorWidth, int nColorHeight,
 														BYTE* pBodyIndexBuffer, int nBodyIndexWidth, int nBodyIndexHeight,
-														int BodyCount,IBody** ppBodies);
+														int BodyCount,IBody** ppBodies, Vector4 floorPlane);
 	void								ProcessFrameAMP(INT64 nTime, 
 														UINT16* pDepthBuffer, int nDepthHeight, int nDepthWidth, 
 														RGBQUAD* pColorBuffer, int nColorWidth, int nColorHeight,

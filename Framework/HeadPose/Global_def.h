@@ -67,6 +67,7 @@ public:
 	int num_heads;
 	std::vector<HeadLoc> locations;
 	std::vector< std::vector<JointLoc> > bodies;
+	Vector4 floorPlane;
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr new_cloud;
 };
