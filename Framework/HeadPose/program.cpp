@@ -2,6 +2,8 @@
 #include "RenderWindowUISingleInheritance.h"
 #include "IMU.h"
 #include<stdafx.h>
+#include "featuresworker.h"
+
 int main( int argc, char** argv )
 {
   // QT Stuff
@@ -11,5 +13,9 @@ int main( int argc, char** argv )
   RenderWindowUISingleInheritance renderWindowUISingleInheritance;
   renderWindowUISingleInheritance.show();
  
+
+  
+
+
   return app.exec();
 }

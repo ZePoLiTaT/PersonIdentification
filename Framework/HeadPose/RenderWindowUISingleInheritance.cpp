@@ -16,6 +16,7 @@
 #include <ppltasks.h>
 #include "GeodesicFeatures.h"
 #include "SkeletonFeatures.h"
+#include "featuresworker.h"
 
 
 // Constructor
@@ -129,6 +130,20 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	frames=new concurrency::unbounded_buffer<shared_ptr<Kinect_Data>>();
 	sensor_Data=new overwrite_buffer<tuple<QuaternionValue,EulerAnglesStruct>>();
 	kinectThread=new Kinect_Thread(*govt,*frames);
+
+
+	//* ***** Thread 2
+	featuresThread = new QThread;
+	FeaturesWorker *featuresWorker = new FeaturesWorker();
+	featuresWorker->moveToThread(featuresThread);
+
+	QObject::connect(featuresThread, SIGNAL(started()), featuresWorker, SLOT(process()));
+	QObject::connect(featuresWorker, SIGNAL(finished()), featuresThread, SLOT(quit()));
+	QObject::connect(featuresWorker, SIGNAL(finished()), featuresWorker, SLOT(deleteLater()));
+	QObject::connect(featuresThread, SIGNAL(finished()), featuresThread, SLOT(deleteLater()));
+	featuresThread->start();
+
+
 	//imuThread=new IMU_THREAD(*sensor_Data);
 	
 	//Create connections 
@@ -136,6 +151,7 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	connect(kinectThread,SIGNAL(Kinect_Frame_Available()),this,SLOT(frameReceived()),Qt::QueuedConnection);
 	//connect(imuThread,SIGNAL(Sensor_Data_Available(QuaternionValue,EulerAnglesStruct)),this,SLOT(dataReceived(QuaternionValue,EulerAnglesStruct)),Qt::QueuedConnection);
 	connect(this->ui->btn_Record,SIGNAL(clicked()),this,SLOT(record()));
+	connect(this->ui->btn_Record_Features, SIGNAL(clicked()), featuresThread, SLOT(SwitchRecording()));
 	connect(this->ui->btn_new,SIGNAL(clicked()),this,SLOT(new_person()));
 	connect(this->ui->cb_ColourOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(colOPTChange(int)));
 	connect(this->ui->cb_HPOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(hpOPTChange(int)));

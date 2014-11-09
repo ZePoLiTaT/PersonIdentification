@@ -28,6 +28,8 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <time.h>
+
+
 // Forward Qt class declarations
 class Ui_MainWindow;
  
@@ -65,6 +67,7 @@ private:
 	concurrency::overwrite_buffer<tuple<QuaternionValue,EulerAnglesStruct>> *sensor_Data;
 	//shared_ptrKinect_Data *dat;
 	Kinect_Thread *kinectThread;
+	QThread *featuresThread;
 	QDir new_dir;
 	QDir currentDir;
 	int personNumber;
