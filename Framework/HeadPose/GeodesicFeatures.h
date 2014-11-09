@@ -26,6 +26,9 @@ public:
 	void processCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	float compute(const Location &ji, const Location &je) const;
 
+	void plot(const Location &ji, const Location &je, vtkIdType iniId, vtkIdType endId, vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra) const;
+	
+
 private:
 	vtkSmartPointer<vtkPolyData> vtk_polygons;
 };
