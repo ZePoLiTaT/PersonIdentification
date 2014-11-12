@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 2.8)
+ 
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
+
+PROJECT(PCL_QT)
+
+find_package(VTK REQUIRED)
+find_package(PCL 1.7 REQUIRED)
+find_package(OpenCV REQUIRED)
+
+include(${VTK_USE_FILE})
+include_directories(${PCL_INCLUDE_DIRS} )
+link_directories(${PCL_LIBRARY_DIRS} )
+add_definitions(${PCL_DEFINITIONS} )
+
+#include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Source  )
+
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Widgets REQUIRED QUIET)
+
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+include_directories($ENV{KINECTSDK20_DIR}/inc)
+link_directories($ENV{KINECTSDK20_DIR}/Lib/x64)
+
+add_definitions(-DUNICODE -D_UNICODE)
+
+file(GLOB UI_FILES *.ui)
+file(GLOB QT_WRAP *.h)
+file(GLOB CXX_FILES *.cxx)
+file(GLOB C_FILES *.c)
+file(GLOB CPP_FILES *.cpp)
+
+
+qt5_wrap_ui(UISrcs ${UI_FILES} )
+# CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
+add_executable(PCL_QT MACOSX_BUNDLE
+    ${CPP_FILES} ${CXX_FILES} ${C_FILES} ${UISrcs} ${QT_WRAP})
+
+	qt5_use_modules(PCL_QT Core Gui)
+
+# target_link_libraries(PCL_QT vtkMeshGeodesics ${VTK_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} Kinect20.lib)
+target_link_libraries(PCL_QT ${VTK_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} Kinect20.lib)
+
+if(MSVC)
+    set_property(TARGET PCL_QT APPEND PROPERTY LINK_FLAGS_RELEASE /DEBUG)
+	
+	#set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} /OPT:REF /OPT:ICF")
+	set(CMAKE_CXX_FLAGS_RELEASE "/Zi")
+	
+	#SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}" "/RELEASE /OPT:REF /OPT:ICF")
+	#SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}" "/DEBUG /RELEASE /OPT:REF /OPT:ICF")
+endif()
+
+
