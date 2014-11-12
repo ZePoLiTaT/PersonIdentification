@@ -1,5 +1,8 @@
 #ifndef _GLOBAL_DEF_ 
 #define _GLOBAL_DEF_
+
+
+
 template<class Interface>
 inline void SafeRelease(Interface *& pInterfaceToRelease)
 {

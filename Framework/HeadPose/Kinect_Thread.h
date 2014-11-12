@@ -53,7 +53,9 @@ class Kinect_Thread:public QThread
 
 public:
 	//Kinect_Thread(PipelineUtilities::PipelineGovernor &governor, ITarget<Kinect_Data> &target);
-	Kinect_Thread(PipelineUtilities::PipelineGovernor &governor, ITarget<shared_ptr<Kinect_Data>> &target);
+	Kinect_Thread(	PipelineUtilities::PipelineGovernor &governor, 
+					ITarget<shared_ptr<Kinect_Data>> &target,
+					concurrency::overwrite_buffer<shared_ptr<Kinect_Data>> *pLastFrame);
 	~Kinect_Thread(void);
 	void run();
 signals:
@@ -69,6 +71,7 @@ public slots:
 private:
 	bool								record_data;
 	QMutex								lockGuard;
+	concurrency::overwrite_buffer<shared_ptr<Kinect_Data>> *lastFrame;
 	concurrency::ITarget<shared_ptr<Kinect_Data>>   &m_KinectData;
 	PipelineUtilities::PipelineGovernor &m_Governor;
 	//Kinect_Data							m_CurrentFrame;

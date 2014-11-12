@@ -45,6 +45,7 @@ signals:
 	void cont(void);
 	void colourDisplayParameterChange(int);
 	void hpDisplayParameterChange(int);
+	void calculateFeatures(void);
 public slots:
 	virtual void dataReceived(QuaternionValue data,EulerAnglesStruct angles);
 	virtual void frameReceived();
@@ -65,6 +66,7 @@ private:
 	PipelineUtilities::PipelineGovernor *govt;
 	concurrency::unbounded_buffer<shared_ptr<Kinect_Data>> *frames;
 	concurrency::overwrite_buffer<tuple<QuaternionValue,EulerAnglesStruct>> *sensor_Data;
+	concurrency::overwrite_buffer<std::shared_ptr<Kinect_Data>> *lastFrame;
 	//shared_ptrKinect_Data *dat;
 	Kinect_Thread *kinectThread;
 	QThread *featuresThread;
@@ -87,7 +89,8 @@ private:
 	vtkImageData* vtkRGBimage;
 	//long frameNumber;
 	bool broadcast;
-	int geodist;
+	//TODO: Remove this!!
+	QTimer *timer;
 };
  
 #endif

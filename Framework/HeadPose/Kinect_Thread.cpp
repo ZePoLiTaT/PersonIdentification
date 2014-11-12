@@ -33,11 +33,14 @@ float Kinect_Thread::r2d(float r)
 	return r * 180 / M_PI;
 }
 
-Kinect_Thread::Kinect_Thread(PipelineUtilities::PipelineGovernor &governor, ITarget<shared_ptr<Kinect_Data>> &target):
+Kinect_Thread::Kinect_Thread(PipelineUtilities::PipelineGovernor &governor, 
+							 ITarget<shared_ptr<Kinect_Data>> &target,
+							 concurrency::overwrite_buffer<shared_ptr<Kinect_Data>> *pLastFrame) :	
 	m_Governor(governor),
 	m_KinectData(target)
 {
 	InitializeDefaultSensor();
+	lastFrame = pLastFrame;
 	m_pDepthRGBX=new RGBQUAD[cDepthWidth*cDepthHeight];
 	depthImageBuffer=new BYTE[cDepthWidth*cDepthHeight];
 	//m_CurrentFrame=Kinect_Data();
@@ -612,6 +615,7 @@ void Kinect_Thread::ProcessFrame(INT64 nTime, UINT16* pDepthBuffer, int nDepthHe
 
 		m_Governor.WaitForAvailablePipelineSlot();
 		asend(m_KinectData,m_CurrentFrame);
+		asend(*lastFrame, m_CurrentFrame);
 		emit Kinect_Frame_Available();
 		//cout << "send" << endl;
 

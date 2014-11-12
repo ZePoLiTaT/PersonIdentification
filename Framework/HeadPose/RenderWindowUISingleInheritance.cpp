@@ -14,8 +14,6 @@
 #include <boost\lexical_cast.hpp>
 #include <ppl.h>
 #include <ppltasks.h>
-#include "GeodesicFeatures.h"
-#include "SkeletonFeatures.h"
 #include "featuresworker.h"
 
 
@@ -94,7 +92,6 @@ void getAngles(Eigen::Quaternionf &q1, float & heading, float & attitude, float 
 
 RenderWindowUISingleInheritance::RenderWindowUISingleInheritance() 
 {
-	this->geodist = 0;
 	this->ui = new Ui_MainWindow;
 	this->ui->setupUi(this);
 	currentDir=QDir("C:/Rick/Data/HeadPose/");
@@ -127,22 +124,25 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	record_data=false;
 	writer=pcl::PCDWriter();
 	govt=new PipelineUtilities::PipelineGovernor(5);
+
 	frames=new concurrency::unbounded_buffer<shared_ptr<Kinect_Data>>();
+	lastFrame = new concurrency::overwrite_buffer<std::shared_ptr<Kinect_Data>>();
 	sensor_Data=new overwrite_buffer<tuple<QuaternionValue,EulerAnglesStruct>>();
-	kinectThread=new Kinect_Thread(*govt,*frames);
+
+	kinectThread = new Kinect_Thread(*govt, *frames, lastFrame);
 
 
 	//* ***** Thread 2
 	featuresThread = new QThread;
-	FeaturesWorker *featuresWorker = new FeaturesWorker();
+	FeaturesWorker *featuresWorker = new FeaturesWorker(lastFrame);
 	featuresWorker->moveToThread(featuresThread);
 
-	QObject::connect(featuresThread, SIGNAL(started()), featuresWorker, SLOT(process()));
-	QObject::connect(featuresWorker, SIGNAL(finished()), featuresThread, SLOT(quit()));
-	QObject::connect(featuresWorker, SIGNAL(finished()), featuresWorker, SLOT(deleteLater()));
-	QObject::connect(featuresThread, SIGNAL(finished()), featuresThread, SLOT(deleteLater()));
-	featuresThread->start();
-
+	//TODO: This is just for testing so remove!
+	cout << "From main thread: " << QThread::currentThreadId()<<endl;
+	//timer = new QTimer(this);
+	//timer->start(5000);
+	//QObject::connect(timer, SIGNAL(timeout()), featuresWorker, SLOT(process()), Qt::QueuedConnection);
+	QObject::connect(this, SIGNAL(calculateFeatures()), featuresWorker, SLOT(process()), Qt::QueuedConnection);
 
 	//imuThread=new IMU_THREAD(*sensor_Data);
 	
@@ -151,7 +151,7 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	connect(kinectThread,SIGNAL(Kinect_Frame_Available()),this,SLOT(frameReceived()),Qt::QueuedConnection);
 	//connect(imuThread,SIGNAL(Sensor_Data_Available(QuaternionValue,EulerAnglesStruct)),this,SLOT(dataReceived(QuaternionValue,EulerAnglesStruct)),Qt::QueuedConnection);
 	connect(this->ui->btn_Record,SIGNAL(clicked()),this,SLOT(record()));
-	connect(this->ui->btn_Record_Features, SIGNAL(clicked()), featuresThread, SLOT(SwitchRecording()));
+	connect(this->ui->btn_Record_Features, SIGNAL(clicked()), featuresWorker, SLOT(SwitchRecording()));
 	connect(this->ui->btn_new,SIGNAL(clicked()),this,SLOT(new_person()));
 	connect(this->ui->cb_ColourOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(colOPTChange(int)));
 	connect(this->ui->cb_HPOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(hpOPTChange(int)));
@@ -188,6 +188,7 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	windowToImageFilter->SetInputBufferTypeToRGB();
 	//imuThread->start();
 	kinectThread->start();
+	featuresThread->start();
 	frameNumber = 0;
 	broadcast = false;
 }
@@ -230,9 +231,9 @@ void RenderWindowUISingleInheritance::frameReceived()
 	{
 		
 
-		if (frameNumber % 5 == 0)
+		if (frameNumber % 10 == 0)
 		{
-
+			emit calculateFeatures();
 		}
 
 		stringstream names=stringstream("");
@@ -372,49 +373,6 @@ void RenderWindowUISingleInheritance::frameReceived()
 	viewer->addPointCloud<PointXYZRGB>(dat->new_cloud,rgb);
 	this->ui->qvtkWidget->update();
 
-	if (dat->num_heads > 0 )
-	{
-		this->geodist++;
-
-		GeodesicFeatures geo;
-		SkeletonFeatures ske;
-
-//		cout << "Floor Plane " << dat->floorPlane;
-
-		// Triangulate the mesh
-		geo.processCloud(dat->new_cloud);
-		
-		for (int i = 0; i < dat->num_heads; i++)
-		{
-			cout << endl << "============== PERSON [" << i << "] =============";
-
-			//Eigen::Vector3f trans = Eigen::Vector3f(dat->bodies[i].at(JointType::JointType_SpineMid).Loc3D.x, 
-			//										dat->bodies[i].at(JointType::JointType_SpineMid).Loc3D.y, 
-			//										dat->bodies[i].at(JointType::JointType_SpineMid).Loc3D.z - 0.2);
-
-			//Eigen::Quaternionf quat = Eigen::Quaternionf();
-			//getQuat(0, 0, 0, quat);
-			//quat.normalize();
-			//viewer->addCube(trans, quat, 0.05, 0.05, 0.05, "x");
-
-
-			vector<float> feat_gd = geo.extract(dat->bodies[i]);
-			vector<float> feat_sk = ske.extract(dat->bodies[i],dat->floorPlane);
-
-			for (int i = 0; i < feat_sk.size(); i++)
-			{
-				cout << "sd(" << (i + 1) << ") = " << feat_sk.at(i)<<endl;
-			}
-			
-			for (int i = 0; i < feat_gd.size(); i++)
-			{
-				cout << "gd(" << (i + 1) << ") = " << feat_gd.at(i) << endl;
-			}
-
-			savefeatures(fout, feat_sk, feat_gd);
-		}
-		
-	}
 	
 	//windowToImageFilter->SetInput(renderWindow);
 	if (broadcast)
@@ -564,4 +522,9 @@ RenderWindowUISingleInheritance::~RenderWindowUISingleInheritance()
 {
 	
 	fout.close();
+}
+
+void RenderWindowUISingleInheritance::calculateFeatures()
+{
+
 }
