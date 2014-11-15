@@ -2,7 +2,7 @@
 
 #include <pcl/io/pcd_io.h>
 #include <Kinect.h>
-#include"DijkstraGeodesicPath.h"
+
 
 #include "vtkTimerLog.h"
 #include "vtkPolyDataMapper.h"
@@ -88,7 +88,7 @@ void GeodesicFeatures::processCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud
 	//cout << "Conversion took " << timer->GetElapsedTime() << " s." << endl;
 }
 
-float GeodesicFeatures::compute(const Location &ji, const Location &je) const
+float GeodesicFeatures::compute(const Location &ji, const Location &je, unsigned short geoFeatureId) const
 {
 	float geodist = 0;
 
@@ -107,26 +107,30 @@ float GeodesicFeatures::compute(const Location &ji, const Location &je) const
 	dijkstra->SetEndVertex(endId);
 
 	
+	
+	//cout << "Before dijkstra update" << endl;
+	dijkstra->Update();
 
-		//plot(ji, je, iniId, endId, dijkstra);
+	//cout << "After dijkstra update" << endl;
+	if (dijkstra->checkPathSuccess())
+	{
+		vtkNew <vtkDoubleArray> weights;
+		dijkstra->GetCumulativeWeights(weights.GetPointer());
+		geodist = weights->GetValue(endId);
 
-
-		//cout << "Before dijkstra update" << endl;
-		dijkstra->Update();
-
-		//cout << "After dijkstra update" << endl;
-		if (dijkstra->checkPathSuccess())
+		if (!GeodesicFeatures::showRender[geoFeatureId])
 		{
-			vtkNew <vtkDoubleArray> weights;
-			dijkstra->GetCumulativeWeights(weights.GetPointer());
-			geodist = weights->GetValue(endId);
-			
+			GeodesicFeatures::showRender[geoFeatureId] = true;
+			//plot(ji, je, iniId, endId, dijkstra);
 		}
 		
-		else
-		{
-			return -1;
-		}
+			
+	}
+		
+	else
+	{
+		return -1;
+	}
 
 
 
@@ -146,7 +150,8 @@ vector<float> GeodesicFeatures::extract(std::vector<JointLoc> const &body) const
 	{
 		geodist = this->compute(
 			body.at(JointType::JointType_ShoulderLeft).Loc3D,
-			body.at(JointType::JointType_ShoulderRight).Loc3D);
+			body.at(JointType::JointType_ShoulderRight).Loc3D,
+			0);
 
 		geo.push_back(geodist);
 		//cout << endl << "	1.Left -> Right shoulder:   " << geodist;
@@ -163,7 +168,8 @@ vector<float> GeodesicFeatures::extract(std::vector<JointLoc> const &body) const
 	{
 		geodist = this->compute(
 			body.at(JointType::JointType_HipLeft).Loc3D,
-			body.at(JointType::JointType_HipRight).Loc3D);
+			body.at(JointType::JointType_HipRight).Loc3D,
+			1);
 
 		geo.push_back(geodist);
 		//cout << endl << "	2.Left -> Right hip:   " << geodist;
@@ -183,7 +189,8 @@ vector<float> GeodesicFeatures::extract(std::vector<JointLoc> const &body) const
 		geodist = this->compute(
 			spinemid_loc,
 			//body.at(JointType::JointType_SpineMid).Loc3D,
-			body.at(JointType::JointType_ShoulderLeft).Loc3D);
+			body.at(JointType::JointType_ShoulderLeft).Loc3D,
+			2);
 
 		geo.push_back(geodist);
 		//cout << endl << "	3.Middle torso -> Left shoulder:   " << geodist;
@@ -200,7 +207,8 @@ vector<float> GeodesicFeatures::extract(std::vector<JointLoc> const &body) const
 		geodist = this->compute(
 			spinemid_loc,
 			//body.at(JointType::JointType_SpineMid).Loc3D,
-			body.at(JointType::JointType_HipLeft).Loc3D);
+			body.at(JointType::JointType_HipLeft).Loc3D,
+			3);
 
 		geo.push_back(geodist);
 		//cout << endl << "	4.Middle torso -> Left hip:   " << geodist;
@@ -217,7 +225,8 @@ vector<float> GeodesicFeatures::extract(std::vector<JointLoc> const &body) const
 		geodist = this->compute(
 			spinemid_loc,
 			//body.at(JointType::JointType_SpineMid).Loc3D,
-			body.at(JointType::JointType_HipRight).Loc3D);
+			body.at(JointType::JointType_HipRight).Loc3D,
+			4);
 
 		geo.push_back(geodist);
 		//cout << endl << "	4.Middle torso -> Right hip:   " << geodist;
@@ -231,7 +240,7 @@ vector<float> GeodesicFeatures::extract(std::vector<JointLoc> const &body) const
 	return geo;
 }
 
-void GeodesicFeatures::plot(const Location &ji, const Location &je, vtkIdType iniId, vtkIdType endId, vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra) const
+void GeodesicFeatures::plot(const Location &ji, const Location &je, vtkIdType iniId, vtkIdType endId, vtkSmartPointer<DijkstraGraphGeodesicPath> dijkstra) const
 {
 	//geodist = 0;
 
@@ -357,3 +366,6 @@ void GeodesicFeatures::plot(const Location &ji, const Location &je, vtkIdType in
 	renderWindow->Render();
 	renderWindowInteractor->Start();
 }
+
+bool GeodesicFeatures::showRender[5] = { false, false, false, false, false };
+

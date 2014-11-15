@@ -9,6 +9,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
 #include "Global_def.h"
+#include"DijkstraGeodesicPath.h"
 
 #include <iostream>
 #include <vector>
@@ -24,12 +25,13 @@ public:
 	vector<float> extract(std::vector<JointLoc> const &body) const;
 
 	void processCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
-	float compute(const Location &ji, const Location &je) const;
+	float compute(const Location &ji, const Location &je, unsigned short geoFeatureId) const;
 
-	void plot(const Location &ji, const Location &je, vtkIdType iniId, vtkIdType endId, vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra) const;
+	void plot(const Location &ji, const Location &je, vtkIdType iniId, vtkIdType endId, vtkSmartPointer<DijkstraGraphGeodesicPath> dijkstra) const;
 	
 
 private:
 	vtkSmartPointer<vtkPolyData> vtk_polygons;
+	static bool showRender[5];
 };
 

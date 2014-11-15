@@ -1,6 +1,10 @@
 #ifndef _GLOBAL_DEF_ 
 #define _GLOBAL_DEF_
-
+template<class Interface>
+//#ifndef KINECT_H
+//#define KINECT_H
+#include <Kinect.h>
+//#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A cloud points. </summary>

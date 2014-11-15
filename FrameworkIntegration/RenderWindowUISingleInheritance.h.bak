@@ -28,8 +28,8 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <time.h>
-#include <QTimer>
-#include "Kinect_Audio_Thread.h"
+
+
 // Forward Qt class declarations
 class Ui_MainWindow;
  
@@ -48,7 +48,6 @@ signals:
 	void calculateFeatures(void);
 public slots:
 	virtual void dataReceived(QuaternionValue data,EulerAnglesStruct angles);
-	virtual void record_audio();
 	virtual void frameReceived();
 	virtual void slotExit();
 	virtual void record();
@@ -69,8 +68,6 @@ private:
 	concurrency::overwrite_buffer<tuple<QuaternionValue,EulerAnglesStruct>> *sensor_Data;
 	concurrency::unbounded_buffer<std::shared_ptr<Kinect_Data>> *featuresFrames;
 	//shared_ptrKinect_Data *dat;
-	QTimer *timer;
-	Kinect_Audio_Thread *KinectAudioThread;
 	Kinect_Thread *kinectThread;
 	QThread *featuresThread;
 	QDir new_dir;
@@ -92,6 +89,8 @@ private:
 	vtkImageData* vtkRGBimage;
 	//long frameNumber;
 	bool broadcast;
+	//TODO: Remove this!!
+	QTimer *timer;
 };
  
 #endif

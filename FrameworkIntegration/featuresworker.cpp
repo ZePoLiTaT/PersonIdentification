@@ -18,7 +18,7 @@ FeaturesWorker::~FeaturesWorker()
 {
 
 	fout.close();
-	qDebug() << "Ending Features Extraction";
+	//qDebug() << "Ending Features Extraction";
 }
 
 void savefeatures(ofstream &fout, vector<float> skfeat, vector<float> gdfeat)
@@ -42,15 +42,15 @@ void receiveFrame(shared_ptr<Kinect_Data> &m_CurrentFrame, shared_ptr<Kinect_Dat
 	// Create a copy of the point cloud
 
 	//TODO: Delete this
-	cout << "	===Copy...." << "SRCSIZE [" << m_CurrentFrame->new_cloud->size() << " , " << m_CurrentFrame->new_cloud->points[0].a << "]" << endl;
+	//cout << "	===Copy...." << "SRCSIZE [" << m_CurrentFrame->new_cloud->size() << " , " << m_CurrentFrame->new_cloud->points[0].a << "]" << endl;
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr geo_cloud = m_CurrentFrame->new_cloud->makeShared();
 
 	//TODO: Remove me
 	geo_cloud->points[0].a = 100;
 	m_CurrentFrame->new_cloud->points[0].a = 150;
-	cout << "	Copy...." << "SRCSIZE [" << m_CurrentFrame->new_cloud->size() << " , " << m_CurrentFrame->new_cloud->points[0].a << "]"
-						  << "COPYSIZE=" << geo_cloud->points.size() << " , " << geo_cloud->points[0].a << "]" << endl;
+	//cout << "	Copy...." << "SRCSIZE [" << m_CurrentFrame->new_cloud->size() << " , " << m_CurrentFrame->new_cloud->points[0].a << "]"
+						  //<< "COPYSIZE=" << geo_cloud->points.size() << " , " << geo_cloud->points[0].a << "]" << endl;
 
 	// Create a new Kinect Data from the Current Frame
 	m_lastFrame->num_heads = m_CurrentFrame->num_heads;
@@ -62,7 +62,7 @@ void receiveFrame(shared_ptr<Kinect_Data> &m_CurrentFrame, shared_ptr<Kinect_Dat
 
 void FeaturesWorker::process()
 {
-	cout << ">>>>> PROCESSING: " << QThread::currentThreadId()<<endl;
+	//cout << ">>>>> PROCESSING: " << QThread::currentThreadId()<<endl;
 	{
 		QMutexLocker locker(&m_mutex);
 
@@ -82,12 +82,12 @@ void FeaturesWorker::process()
 
 		if (m_record)
 		{
-			cout << ">>>>> ---> RECORDING: " << QThread::currentThreadId()<<endl;
+			//cout << ">>>>> ---> RECORDING: " << QThread::currentThreadId()<<endl;
 			savefeatures(fout, feat_sk, feat_gd);
 		}
 		else
 		{
-			cout << ">>>>> ----> NOT RECORDING: " << QThread::currentThreadId()<<endl;
+			//cout << ">>>>> ----> NOT RECORDING: " << QThread::currentThreadId()<<endl;
 		}
 	}
 

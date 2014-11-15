@@ -118,10 +118,6 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 
 	kinectThread = new Kinect_Thread(*govt, *frames);
 
-	timer = new QTimer(this);
-	KinectAudioThread = new Kinect_Audio_Thread(*govt, *frames);
-	connect(timer, SIGNAL(timeout()), KinectAudioThread, SLOT(stopRecording()), Qt::QueuedConnection);
-	connect(KinectAudioThread, SIGNAL(Kinect_AudioRecording_Done()), this, SLOT(audioRecordingDone()), Qt::QueuedConnection);
 
 	//* ***** Thread 2
 	featuresThread = new QThread;
@@ -143,7 +139,6 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	//connect(imuThread,SIGNAL(Sensor_Data_Available(QuaternionValue,EulerAnglesStruct)),this,SLOT(dataReceived(QuaternionValue,EulerAnglesStruct)),Qt::QueuedConnection);
 	connect(this->ui->btn_Record,SIGNAL(clicked()),this,SLOT(record()));
 	connect(this->ui->btn_Record_Features, SIGNAL(clicked()), featuresWorker, SLOT(SwitchRecording()));
-	connect(this->ui->btn_Record_Audio, SIGNAL(clicked()), this, SLOT(record_audio()));
 	connect(this->ui->btn_new,SIGNAL(clicked()),this,SLOT(new_person()));
 	connect(this->ui->cb_ColourOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(colOPTChange(int)));
 	connect(this->ui->cb_HPOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(hpOPTChange(int)));
@@ -181,7 +176,6 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	//imuThread->start();
 	kinectThread->start();
 	featuresThread->start();
-	KinectAudioThread->start();
 	frameNumber = 0;
 	broadcast = false;
 }
@@ -189,11 +183,6 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 void RenderWindowUISingleInheritance::slotExit() 
 {
   qApp->exit();
-}
-
-void RenderWindowUISingleInheritance::record_audio(){
-
-	timer->start(3000);
 }
 
 //void RenderWindowUISingleInheritance::

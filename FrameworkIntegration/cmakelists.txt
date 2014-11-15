@@ -43,7 +43,7 @@ add_executable(PCL_QT MACOSX_BUNDLE
 	qt5_use_modules(PCL_QT Core Gui)
 
 # target_link_libraries(PCL_QT vtkMeshGeodesics ${VTK_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} Kinect20.lib)
-target_link_libraries(PCL_QT ${VTK_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} Kinect20.lib)
+target_link_libraries(PCL_QT ${VTK_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} Kinect20.lib avrt.lib mfuuid.lib mfplat.lib wmcodecdspuuid.lib)
 
 if(MSVC)
     set_property(TARGET PCL_QT APPEND PROPERTY LINK_FLAGS_RELEASE /DEBUG)
