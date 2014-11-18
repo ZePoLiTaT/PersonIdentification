@@ -7,9 +7,6 @@ Kinect_Audio_Thread::Kinect_Audio_Thread(PipelineUtilities::PipelineGovernor &go
    // m_Governor(governor),
    // m_KinectData(target)
 {
-	record_data = true;
-
-
 
 }
 
@@ -40,12 +37,21 @@ void Kinect_Audio_Thread::stopRecording()
 	lockGuard.lock();
 	ch = 'S';
 	lockGuard.unlock();
-	record_data = false;
 }
+
+void Kinect_Audio_Thread::startRecording()
+{
+
+	std::cout << "start  signal called" << std::endl;
+	lockGuard.lock();
+	startRecordSignal =true;
+	lockGuard.unlock();
+}
+
 
 void Kinect_Audio_Thread::run()
 {
-	wchar_t waveFileName[MAX_PATH];
+	
 	device = NULL;
 	 waveFile = INVALID_HANDLE_VALUE;
 	 //*capturer = NULL;
@@ -65,47 +71,16 @@ void Kinect_Audio_Thread::run()
 			hr = GetKinectAudioDevice(&device);
 			if (SUCCEEDED(hr))
 			{
-				std::cout << "GetKinectAudioDevice succeeded" << std::endl;
-				// Create the wave file that will contain audio data
-				hr = GetWaveFileName(waveFileName, _countof(waveFileName));
-				if (SUCCEEDED(hr))
+				while (true)
 				{
-					waveFile = CreateFile(waveFileName,
-						GENERIC_WRITE,
-						FILE_SHARE_READ,
-						NULL,
-						CREATE_ALWAYS,
-						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-						NULL);
-
-					if (INVALID_HANDLE_VALUE != waveFile)
+					if (startRecordSignal)
 					{
-						//  Instantiate a capturer
-						capturer = new (std::nothrow) CWASAPICapture(device);
-						if ((NULL != capturer) && capturer->Initialize(TargetLatency))
-						{
-							hr = CaptureAudio(capturer, waveFile, waveFileName);
-							if (FAILED(hr))
-							{
-								std::cout << "Unable to capture audio data." << std::endl;
-							}
-						}
-						else
-						{
-							std::cout << "Unable to initialize capturer." << std::endl;
-							hr = E_FAIL;
-						}
-					}
-					else
-					{
-						std::cout << "Unable to create output WAV file %S.\nAnother application might be using this file." << std::endl;//, waveFileName);
-						hr = E_FAIL;
+						startAudio();
+						startRecordSignal = false;
+						ch = 't';
 					}
 				}
-				else
-				{
-					std::cout << "Unable to construct output WAV file path.\n" << std::endl;
-				}
+				
 			}
 			else
 			{
@@ -370,3 +345,49 @@ HRESULT Kinect_Audio_Thread::CaptureAudio(CWASAPICapture *capturer, HANDLE waveF
     return hr;
 }
 
+void Kinect_Audio_Thread::startAudio()
+{
+	wchar_t waveFileName[MAX_PATH];
+
+	std::cout << "GetKinectAudioDevice succeeded" << std::endl;
+	// Create the wave file that will contain audio data
+	hr = GetWaveFileName(waveFileName, _countof(waveFileName));
+	if (SUCCEEDED(hr))
+	{
+		waveFile = CreateFile(waveFileName,
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			NULL,
+			CREATE_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
+			NULL);
+
+		if (INVALID_HANDLE_VALUE != waveFile)
+		{
+			//  Instantiate a capturer
+			capturer = new (std::nothrow) CWASAPICapture(device);
+			if ((NULL != capturer) && capturer->Initialize(TargetLatency))
+			{
+				hr = CaptureAudio(capturer, waveFile, waveFileName);
+				if (FAILED(hr))
+				{
+					std::cout << "Unable to capture audio data." << std::endl;
+				}
+			}
+			else
+			{
+				std::cout << "Unable to initialize capturer." << std::endl;
+				hr = E_FAIL;
+			}
+		}
+		else
+		{
+			std::cout << "Unable to create output WAV file %S.\nAnother application might be using this file." << std::endl;//, waveFileName);
+			hr = E_FAIL;
+		}
+	}
+	else
+	{
+		std::cout << "Unable to construct output WAV file path.\n" << std::endl;
+	}
+}

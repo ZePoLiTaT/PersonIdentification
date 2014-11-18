@@ -64,10 +64,13 @@ public:
 	~Kinect_Audio_Thread(void);
 	void run();
 
+	void startAudio();
+
 signals:
     void Kinect_AudioRecording_Done();
 public slots:
     virtual void stopRecording();
+	virtual void startRecording();
 
 private:
 
@@ -76,8 +79,8 @@ private:
     CWASAPICapture *capturer;
     IMMDevice *device;
     char stopRecordSignal;
+	bool startRecordSignal=false;
 	wchar_t ch;
-    bool record_data;
 	QMutex	lockGuard;
     HRESULT GetKinectAudioDevice(IMMDevice **ppDevice);
     HRESULT WriteWaveHeader(HANDLE waveFile, const WAVEFORMATEX *pWaveFormat, DWORD dataSize);

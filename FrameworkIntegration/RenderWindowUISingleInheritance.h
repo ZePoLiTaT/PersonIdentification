@@ -46,6 +46,8 @@ signals:
 	void colourDisplayParameterChange(int);
 	void hpDisplayParameterChange(int);
 	void calculateFeatures(void);
+	void StartAudioRecord(void);
+	void StopAudioRecord();
 public slots:
 	virtual void dataReceived(QuaternionValue data,EulerAnglesStruct angles);
 	virtual void record_audio();
@@ -68,6 +70,7 @@ private:
 	concurrency::unbounded_buffer<shared_ptr<Kinect_Data>> *frames;
 	concurrency::overwrite_buffer<tuple<QuaternionValue,EulerAnglesStruct>> *sensor_Data;
 	concurrency::unbounded_buffer<std::shared_ptr<Kinect_Data>> *featuresFrames;
+	bool record_audio_flag = false;
 	//shared_ptrKinect_Data *dat;
 	QTimer *timer;
 	Kinect_Audio_Thread *KinectAudioThread;

@@ -120,8 +120,10 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 
 	timer = new QTimer(this);
 	KinectAudioThread = new Kinect_Audio_Thread(*govt, *frames);
-	connect(timer, SIGNAL(timeout()), KinectAudioThread, SLOT(stopRecording()), Qt::QueuedConnection);
-	connect(KinectAudioThread, SIGNAL(Kinect_AudioRecording_Done()), this, SLOT(audioRecordingDone()), Qt::QueuedConnection);
+	connect(this, SIGNAL(StopAudioRecord()), KinectAudioThread, SLOT(stopRecording()), Qt::QueuedConnection);
+	connect(this, SIGNAL(StartAudioRecord()), KinectAudioThread, SLOT(startRecording()), Qt::QueuedConnection);
+	//connect(timer, SIGNAL(timeout()), KinectAudioThread, SLOT(stopRecording()), Qt::QueuedConnection);
+	//connect(KinectAudioThread, SIGNAL(Kinect_AudioRecording_Done()), this, SLOT(audioRecordingDone()), Qt::QueuedConnection);
 
 	//* ***** Thread 2
 	featuresThread = new QThread;
@@ -193,7 +195,20 @@ void RenderWindowUISingleInheritance::slotExit()
 
 void RenderWindowUISingleInheritance::record_audio(){
 
-	timer->start(3000);
+	//timer->start(3000);
+	cout << " Record=" << record_audio_flag << endl;
+	if (!record_audio_flag)
+	{
+		emit StartAudioRecord();
+		record_audio_flag = true;
+	}
+	else
+	{
+		//timer->start(3000);
+		emit StopAudioRecord();
+		//emit StartAudioRecord();
+		record_audio_flag = false;
+	}
 }
 
 //void RenderWindowUISingleInheritance::
