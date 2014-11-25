@@ -11,18 +11,19 @@ unsigned int FeaturesWorker::framesProcessed = 0;
 FeaturesWorker::FeaturesWorker(concurrency::unbounded_buffer<shared_ptr<Kinect_Data>> *target)
 {
 	frames = target;
-	fout.open("C:/local/data/test2.csv", ios::out);
 }
 
 FeaturesWorker::~FeaturesWorker()
 {
 
-	fout.close();
+	
 	//qDebug() << "Ending Features Extraction";
 }
 
 void savefeatures(ofstream &fout, vector<float> skfeat, vector<float> gdfeat)
 {
+	fout.open("C:/local/data/shape_features.csv", ios::app);
+	
 	vector <float>::iterator featIterator;
 
 	for (featIterator = skfeat.begin(); featIterator != skfeat.end(); featIterator++)
@@ -35,6 +36,7 @@ void savefeatures(ofstream &fout, vector<float> skfeat, vector<float> gdfeat)
 		fout << *featIterator << ", ";
 	}
 	fout << endl;
+	fout.close();
 }
 
 void receiveFrame(shared_ptr<Kinect_Data> &m_CurrentFrame, shared_ptr<Kinect_Data> &m_lastFrame)
@@ -99,6 +101,12 @@ void FeaturesWorker::SwitchRecording()
 	cout << ">>>>>  Thread::SwitchRecording called from main thread: " << QThread::currentThreadId()<<endl;
 	QMutexLocker locker(&m_mutex);
 	m_record = !m_record;
+
+	if (m_record)
+	{
+		fout.open("C:/local/data/shape_features.csv", ios::out);
+		fout.close();
+	}
 }
 
 void FeaturesWorker::extractFeatures(shared_ptr<Kinect_Data> &dat, vector<float> &feat_sk, vector<float> &feat_gd)

@@ -96,8 +96,8 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 		
 	}
 	personNumber=maximum;
-	current_Dir=QString("C:/Rick/Data/HeadPose/Person%1/").arg(++personNumber);
-	new_dir=QDir("C:/Rick/Data/HeadPose");
+	current_Dir=QString("C:/local/data/HeadPose/Person%1/").arg(++personNumber);
+	new_dir=QDir("C:/local/data/HeadPose");
 	if(!new_dir.exists(current_Dir))
 	{
 		new_dir.mkdir(current_Dir);
@@ -144,7 +144,8 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	connect(kinectThread,SIGNAL(Kinect_Frame_Available()),this,SLOT(frameReceived()),Qt::QueuedConnection);
 	//connect(imuThread,SIGNAL(Sensor_Data_Available(QuaternionValue,EulerAnglesStruct)),this,SLOT(dataReceived(QuaternionValue,EulerAnglesStruct)),Qt::QueuedConnection);
 	connect(this->ui->btn_Record,SIGNAL(clicked()),this,SLOT(record()));
-	connect(this->ui->btn_Record_Features, SIGNAL(clicked()), featuresWorker, SLOT(SwitchRecording()));
+	//connect(this->ui->btn_Record_Features, SIGNAL(clicked()), featuresWorker, SLOT(SwitchRecording()));
+	connect(this->ui->chb_record_features, SIGNAL(stateChanged(int)), featuresWorker, SLOT(SwitchRecording()), Qt::QueuedConnection);
 	connect(this->ui->btn_Record_Audio, SIGNAL(clicked()), this, SLOT(record_audio()));
 	connect(this->ui->btn_new,SIGNAL(clicked()),this,SLOT(new_person()));
 	connect(this->ui->cb_ColourOptions, SIGNAL(currentIndexChanged(int)), this, SLOT(colOPTChange(int)));
@@ -186,6 +187,8 @@ RenderWindowUISingleInheritance::RenderWindowUISingleInheritance()
 	KinectAudioThread->start();
 	frameNumber = 0;
 	broadcast = false;
+
+	//this->ui->chb_record_features->setChecked(true);
 }
  
 void RenderWindowUISingleInheritance::slotExit() 
@@ -387,7 +390,7 @@ void RenderWindowUISingleInheritance::frameReceived()
 		asend(*featuresFrames, dat);
 		emit calculateFeatures();
 	}
-	
+
 	//windowToImageFilter->SetInput(renderWindow);
 	if (broadcast)
 	{

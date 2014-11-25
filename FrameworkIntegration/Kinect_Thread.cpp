@@ -64,7 +64,7 @@ Kinect_Thread::Kinect_Thread(PipelineUtilities::PipelineGovernor &governor,
 	m_continue = true;
 	m_Colour_Properties = Colour_Display_Properties::Display_Colour;
 	
-	InitializeMLP("./mlp_tuned.json");
+	InitializeMLP("C:/local/data/mlp_tuned.json");
 	
 	p1=pow(-1.3835,-9);
 	p2=pow(1.8435,-5);

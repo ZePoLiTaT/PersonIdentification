@@ -2009,6 +2009,22 @@
       <enum>QSlider::TicksBelow</enum>
      </property>
     </widget>
+    <widget class="QCheckBox" name="chb_record_features">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>290</y>
+       <width>121</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Record Features</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="lbl_Temp">
     <property name="enabled">
@@ -2307,52 +2323,6 @@
      <string>Record Audio</string>
     </property>
     <widget class="QPushButton" name="btn_Record_Audio">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>20</y>
-       <width>31</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
-     </property>
-     <property name="toolTip">
-      <string>Next Frame</string>
-     </property>
-     <property name="text">
-      <string>►</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_8">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>1570</x>
-      <y>380</y>
-      <width>101</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Record Features</string>
-    </property>
-    <widget class="QPushButton" name="btn_Record_Features">
      <property name="enabled">
       <bool>true</bool>
      </property>
